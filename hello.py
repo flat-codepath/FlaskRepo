@@ -8,12 +8,39 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    first_name='John'
+    favorite_pizza=['pepperoni','Cheese',"Mushrooms",41]
+    stuff='this is Bold  text'
+    return render_template('index.html',first_name=first_name,
+                           stuff=stuff,favorite_pizza=favorite_pizza)
+
+'''FILTERS
+safe
+capitalize
+lower
+upper
+title
+trim
+striptags
+'''
+
 
 
 @app.route('/user/<name>')
 def user(name):
-    return f"<h2>hello {name}</h1>"
+    return  render_template('user.html',user_name=name)
+
+# create Custom Error Pages
+# invalid URL
+@app.errorhandler(404)
+def page_not_found(e):
+    return  render_template('404.html'),404
+
+# Internal Server Error
+@app.errorhandler(500)
+def page_not_found(e):
+    return  render_template('500.html'),500
+
 
 if __name__ == "__main__":
-   app.run()
+   app.run(debug=True)
