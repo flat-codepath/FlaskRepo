@@ -1,12 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
- <h2>Heallo  {{user_name|upper}}</h2>
+{% block content %}
+<br>
 
-</body>
-</html>
+<div class="container-fluid  mx-2">
+ <h2>Hello  {{user_name|upper}}</h2>
+</div>
+{% endblock %}

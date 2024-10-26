@@ -1,16 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block content %}
   <h2>Hello World!</h2>
   <p> This is my first webpage in flask</p>
   <p>My name is  {{first_name}}</p>
   <p>{{stuff|title}}</p>
+  <button class="btn btn-secondary">sdfsdfsdf</button>
    {% for pizza in favorite_pizza %}
   <p>{{pizza}}</p>
+
    {% endfor %}
-</body>
-</html>
+
+{% endblock %}
