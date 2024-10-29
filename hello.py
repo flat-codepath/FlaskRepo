@@ -22,6 +22,7 @@ def index():
     first_name = 'John'
     favorite_pizza = ['pepperoni', 'Cheese', "Mushrooms", 41]
     stuff = 'this is Bold  text'
+    flash("Wellcome to Our Webpage")
     return render_template('index.html', first_name=first_name,
                            stuff=stuff, favorite_pizza=favorite_pizza)
 
