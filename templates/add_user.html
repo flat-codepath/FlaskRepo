@@ -25,6 +25,12 @@
       {{form.favorite_color.label}}
       {{form.favorite_color(class='form-control')}}
      <br>
+     {{form.password_hash.label}}
+      {{form.password_hash(class='form-control')}}
+     <br>
+      {{form.password_hash2.label}}
+      {{form.password_hash2(class='form-control')}}
+     <br>
      {{form.submit( class='btn btn-primary w-100pyth')}}
  </form>
 
@@ -32,17 +38,20 @@
     <br>
     <br>
    <table class="table table-hover table-border table-striped">
+       {% if our_users %}
        {% for our_user in our_users %}
         <tr>
 
 
            <td>
-               {{our_user.id}}.<a href="{{ url_for('update', id=our_user.id)}}">{{our_user.name}}</a>-{{our_user.email}}.....{{our_user.favorite_color}}
+               {{our_user.id}}.<a href="{{ url_for('update', id=our_user.id)}}">{{our_user.name}}</a><br>{{our_user.email}}<br>{{our_user.favorite_color}}<br>{{our_user.password_hash}}  <br>  <a class=" text-danger" href="{{ url_for('delete', id=our_user.id)}}">DELETE USER</a>
            </td>
 
         </tr>
          {% endfor %}
+       {% endif %}
     </table>
 {% endif %}
+
 </div>
 {% endblock %}
