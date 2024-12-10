@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<div class="container">
+ <h2>Add Blog Post...</h2>
+ <br>
+ <form method="POST" >
+     {{form.hidden_tag() }}
+     {{form.title.label}}?
+     {{form.title( class='form-control ')}}
+     <br>
+     {{ form.auther.label}}
+     {{form.auther(class='form-control ')}}
+     <br>
+      {{form.slug.label}}
+      {{form.slug(class='form-control')}}
+     <br>
+     {{form.content.label}}
+      {{form.content(class='form-control',row='10')}}
+     <br>
+     {{form.submit( class='btn btn-primary w-100pyth')}}
+ </form>
+
+
+</div>
+{% endblock %}

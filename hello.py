@@ -1,7 +1,8 @@
 from flask import Flask, render_template, flash, request
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError
+from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError,TextAreaField
 from wtforms.validators import DataRequired, EqualTo, Length
+from wtforms.widgets import TextArea
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask_migrate import Migrate
@@ -214,6 +215,53 @@ def get_current_date():
    return favorite_pizza
    # return {'Date':date.today()}
 
+# Create a Blog post Model Class 17
+class Posts(db.Model):
+    id =db.Column(db.Integer, primary_key=True)
+    title=db.Column(db.String(255))
+    content=db.Column(db.Text)
+    auther =db.Column(db.String(255))
+    date_posted=db.Column(db.DateTime,default=datetime.utcnow)
+    slug =db.Column(db.String(255))
+# flask db  migrate -m "Add  Post Model"
+# flask db upgrade
+
+
+class PostForm(FlaskForm):
+    title =StringField("Title",validators=[DataRequired()])
+    content=TextAreaField("Content",validators=[DataRequired()])
+    auther=StringField("Auther",validators=[DataRequired()])
+    slug=StringField("Slug",validators=[DataRequired()])
+    submit=SubmitField("Submit")
+# Add Post Page:
+@app.route("/add-post",methods=['GET','POST'])
+def add_post():
+    form=PostForm()
+    if form.validate_on_submit():
+        post=Posts(title=form.title.data,content=form.content.data,auther=form.auther.data,slug=form.slug.data,)
+        # Clear the Form
+        # form.title.data=''
+        # form.content.data=''
+        # form.auther.data=''
+        # form.slug.data=''
+
+        #Add Post data to database
+        db.session.add(post)
+        db.session.commit()
+        flash("Blog post Submitted Successfully")
+
+    return render_template("add_post.html",form=form)
+
+@app.route('/posts')
+def posts():
+    posts =Posts.query.order_by(Posts.date_posted)
+    return render_template("post.html",posts=posts)
+
+
+@app.route('/posts/<int:id>')
+def post(id):
+    post=Posts.query.get_or_404(id)
+    return render_template('post_.html',post=post)
 
 
 
@@ -258,3 +306,4 @@ if __name__ == "__main__":
 # 'scrypt:32768:8:1$RTshoVoKWvRoD1WC$28a0309004d521c04203ffbf28d456fa7f26f0873141381c793e169c7b156337b3ba68ad9716292b9c65ccdd5d01f9a2fffed5b5beb8494e26b8abd8d2248c04'
 # >>> u.verify_password('cat')
 # True
+
