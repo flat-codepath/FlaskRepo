@@ -14,7 +14,11 @@
     {{post.content}}<br>
 
     <br>
-    <a href="{{url_for('post',id=post.id)}}">View Post</a>
+    <a href="{{url_for('post',id=post.id)}}" class="btn btn-outline-secondary mx-2">View Post</a>
+
+    <a href="{{url_for('edit_post',id=post.id)}}"  class="btn btn-outline-secondary mx-2">Edit Post</a>
+
+    <a href="{{ url_for('delete_post', id=post.id)}}"  class="btn btn-outline-danger mx-2">Delete Post</a>
    <hr>
      {% endfor  %}
 

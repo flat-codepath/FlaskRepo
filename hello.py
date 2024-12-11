@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash, request
+from flask import Flask, render_template, flash, request,redirect,url_for
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError,TextAreaField
 from wtforms.validators import DataRequired, EqualTo, Length
@@ -9,6 +9,7 @@ from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import  date
 import mysql
+from flask_login import UserMixin,login_user,LoginManager,logout_user,current_user,login_required
 
 # Create a Flask Instance
 app = Flask(__name__)  # it help flask to determine the root path of the application
@@ -26,8 +27,9 @@ migrate = Migrate(app, db)
 
 
 # Create Model
-class users(db.Model):
+class users(db.Model,UserMixin):
     id = db.Column(db.Integer, primary_key=True)
+    username =db.Column(db.String(200),nullable=False,unique=True)
     name = db.Column(db.String(200), nullable=False)
     email = db.Column(db.String(120), nullable=False, unique=True)
     favorite_color = db.Column(db.String(120))
@@ -82,6 +84,7 @@ class PasswordForm(FlaskForm):
 
 class UserForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
+    username=StringField("UserName",validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired()])
     favorite_color = StringField('Favorite Color')
     password_hash = PasswordField('password', validators=[DataRequired(),
@@ -170,6 +173,7 @@ def update(id):
         name_to_update.name = request.form['name']
         name_to_update.email = request.form['email']
         name_to_update.favorite_color = request.form['favorite_color']
+        name_to_update.favorite_color =request.form['username']
         try:
             db.session.commit()
             flash('User Updated Successfully!')
@@ -192,12 +196,13 @@ def add_user():
         if user is None:
             # Hash the password!!!
             hash_pw = generate_password_hash(form.password_hash.data, 'pbkdf2:sha256')
-            user = users(name=form.name.data, email=form.email.data, favorite_color=form.favorite_color.data,
+            user = users(username=form.username.data,name=form.name.data, email=form.email.data, favorite_color=form.favorite_color.data,
                          password_hash=hash_pw)
             db.session.add(user)
             db.session.commit()
         name = form.name.data
         form.name.data = ''
+        form.username.data=''
         form.email.data = ''
         form.favorite_color.data = ''
         form.password_hash.data = ''
@@ -264,6 +269,87 @@ def post(id):
     return render_template('post_.html',post=post)
 
 
+@app.route('/posts/edit/<int:id>',methods=['GET',"POST",])
+def edit_post(id):
+    post =Posts.query.get_or_404(id)
+    form=PostForm(instance=post)
+    if form.validate_on_submit():
+        post.title=form.title.data
+        post.auther=form.auther.data
+        post.slug =form.slug.data
+        post.content=form.content.data
+        #Update Database
+        db.session.add(post)
+        db.session.commit()
+        flash("Post has been Updated")
+        return redirect(url_for("post",id=post.id))
+    form.title.data=post.title
+    form.auther.data=post.auther
+    form.slug.data=post.slug
+    form.content.data=post.content
+    return render_template('edit_post.html',form=form)
+
+
+@app.route('/posts/delete/<int:id>')
+def delete_post(id):
+    post_to_delete=Posts.query.get_or_404(id)
+    try:
+        db.session.delete(post_to_delete)
+        db.session.commit()
+
+        flash('Blog Post delete Successfully')
+        posts=Posts.query.order_by(Posts.date_posted)
+        return render_template('post_.html', post=post)
+    except:
+        flash(" Whoops! there was a problem deleting post try again")
+        return render_template('post_.html', post=post)
+
+# Flask Login Stuff Class 22
+# Create Login Form:
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view ="login"
+login_manager.login_view=''
+
+@login_manager.user_loader
+def load_user(user_id):
+    return  users.query.get(int(user_id))
+class LoginForm(FlaskForm):
+    username=StringField('username',validators=[DataRequired()])
+    password=PasswordField('password',validators=[DataRequired()])
+    submit=SubmitField('submit')
+@app.route('/login',methods=["POST",'GET'])
+def login():
+    form=LoginForm()
+    if form.validate_on_submit():
+        user =users.query.filter_by(username=form.username.data).first()
+        if user:
+            # check the hash
+            if check_password_hash(user.password_hash,form.password.data):
+                login_user(user)
+                flash("Login Successfully!!")
+                return redirect(url_for('dashboard'))
+
+            else:
+                flash("Wrong  Password- Try Again")
+        else:
+            flash('Enter the correct user name')
+    return render_template('login.html',form=form)
+
+
+# Create Login Form
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('dashboard.html')
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('You Have Been Logged Out !')
+    return  redirect('login')
 
 
 

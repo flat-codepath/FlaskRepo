@@ -16,6 +16,9 @@
  <br>
  <form method="POST" class="shadow-lg p-3 ">
      {{form.hidden_tag() }}
+     {{form.username.label}}?
+     {{form.username( class='form-control ')}}
+     <br>
      {{form.name.label}}?
      {{form.name( class='form-control ')}}
      <br>
