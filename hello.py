@@ -270,6 +270,7 @@ def post(id):
 
 
 @app.route('/posts/edit/<int:id>',methods=['GET',"POST",])
+@login_required
 def edit_post(id):
     post =Posts.query.get_or_404(id)
     form=PostForm(instance=post)
@@ -291,6 +292,7 @@ def edit_post(id):
 
 
 @app.route('/posts/delete/<int:id>')
+@login_required
 def delete_post(id):
     post_to_delete=Posts.query.get_or_404(id)
     try:
